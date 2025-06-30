@@ -1,0 +1,26 @@
+{% extends ''users/base.html' %}
+
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <form class="row" method="post" enctype="multipart/form-data" novalidate>
+        <div class="col-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-between">
+                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary">
+                      <i class="bi bi-x-circle"></i> Отмена
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                      {% if object %}Сохранить{% else %}Создать{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'mailings/base.html' %}
+
+{% block content %}
+<div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Детали попытки рассылки</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Дата и время:</dt>
+            <dd class="col-sm-9">{{ attempt.datetime_attempt }}</dd>
+            
+            <dt class="col-sm-3">Статус:</dt>
+            <dd class="col-sm-9">
+                {% if attempt.status_attempt == "successfully" %}
+                    <span class="badge bg-success">Успешно</span>
+                {% else %}
+                    <span class="badge bg-danger">Не успешно</span>
+                {% endif %}
+            </dd>
+            
+            <dt class="col-sm-3">Получатель:</dt>
+            <dd class="col-sm-9">
+                {{ attempt.recipient.full_name|default:"Не указано" }} 
+                &lt;{{ attempt.recipient.recipient_email }}&gt;
+            </dd>
+            
+            <dt class="col-sm-3">Рассылка:</dt>
+            <dd class="col-sm-9">{{ attempt.mailing }}</dd>
+            
+            <dt class="col-sm-3">Ответ сервера:</dt>
+            <dd class="col-sm-9">
+                <pre>{{ attempt.response_mail_server }}</pre>
+            </dd>
+        </dl>
+        
+        <a href="{% url 'mailings:attempts_list' %}" class="btn btn-secondary">
+            Назад к списку попыток
+        </a>
+    </div>
+</div>
+{% endblock %}

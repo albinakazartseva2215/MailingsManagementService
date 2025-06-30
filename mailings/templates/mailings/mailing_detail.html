@@ -1,0 +1,46 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Подробная информация о получателе рассылки{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="card mb-4 box-shadow" style="width: 30rem; overflow: hidden;">
+            <div class="card-body">
+                <h5 class="card-title">Рассылка: {{ object.pk }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Дата первой отправки: {{ object.datetime_start|date:"d M Y" }}</li>
+                <li class="list-group-item">Дата создания: {{ object.datetime_end|date:"d M Y" }}</li>
+                <li class="list-group-item">Статус рассылки: {{ object.status_mailing }}</li>
+                <li class="list-group-item">Сообщение: {{ object.message }}</li>
+            </ul>
+            <a href="{% url 'mailings:mailing_update' object.pk %}" class="btn btn-outline-primary mt-2">
+                  <i class="bi bi-pencil-square"></i> Редактировать рассылку
+            </a>
+            <form action="{% url 'mailings:send_mailing' pk=mailing.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-lg"
+                        {% if mailing.status_mailing == mailing.COMPLETED_AT %}disabled{% endif %}>
+                    <i class="bi bi-send"></i> Отправить сейчас
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if perms.mailings.block_mailing %}
+<div class="mt-4">
+    <h4>Действия менеджера</h4>
+    <form method="post" action="{% url 'mailings:disable_mailing' object.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            {% if object.status_mailing == object.BLOCKED %}
+                Включить рассылку
+            {% else %}
+                Отключить рассылку
+            {% endif %}
+        </button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

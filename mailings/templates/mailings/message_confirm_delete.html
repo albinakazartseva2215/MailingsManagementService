@@ -1,0 +1,25 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Форма продукта{% endblock %}
+
+{% block content %}
+<h2>Форма продукта</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <form class="row" method="post" enctype="multipart/form-data">
+                <div class="card">
+                    <p class="card-text">Действительно хотите удалить {{ object.subject }}</p>
+                    <div class="card-body">
+                        {% csrf_token %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Удалить
+                    </button>
+                    <a href="{% url 'catalog:products_list' %}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

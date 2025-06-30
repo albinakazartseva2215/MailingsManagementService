@@ -1,0 +1,18 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Подробная информация о сообщении{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="card mb-4 box-shadow" style="width: 30rem; overflow: hidden;">
+            <div class="card-body">
+                <h5 class="card-title">Тема сообщения: {{ object.subject }}</h5>
+                <p class="card-text">Текст сообщения: {{ object.body }}</p>
+            </div>
+            <a href="{% url 'mailings:message_update' object.pk %}" class="btn btn-outline-primary mt-2">
+                  <i class="bi bi-pencil-square"></i> Редактировать сообщение
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
