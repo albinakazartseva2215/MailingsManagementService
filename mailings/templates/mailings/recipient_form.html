@@ -1,0 +1,33 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Форма получателя рассылки{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% if object %}Редактирование получателя рассылки{% else %}Создание получателя рассылки{% endif %}</h2>
+
+    <!-- Вывод ошибок формы -->
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+                <strong>{{ field|title }}</strong>: {{ errors|join:", " }}<br>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form class="row" method="post" enctype="multipart/form-data" novalidate>
+        <div class="col-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary px-4">
+                    {% if object %}Сохранить{% else %}Создать{% endif %}
+                </button>
+                <a href="{% url 'mailings:home' %}" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

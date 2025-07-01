@@ -1,0 +1,169 @@
+{% extends 'mailings/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Управление рассылками</h1>
+
+    {% if perms.mailings.add_mailing %}
+    <a href="{% url 'mailings:mailing_create' %}" class="btn btn-success mb-3">
+        <i class="fas fa-plus"></i> Создать новую рассылку
+    </a>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Статус</th>
+                    <th>Сообщение</th>
+                    <th>Получатели</th>
+                    <th>Дата начала</th>
+                    <th>Дата окончания</th>
+                    <th>Владелец</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mailing in mailings %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <span class="badge
+                            {% if mailing.status_mailing == mailing.LAUNCHED_AT %}bg-success
+                            {% elif mailing.status_mailing == mailing.CREATED_AT %}bg-primary
+                            {% elif mailing.status_mailing == mailing.COMPLETED_AT %}bg-secondary
+                            {% elif mailing.status_mailing == mailing.BLOCKED %}bg-danger{% endif %}">
+                            {{ mailing.get_status_mailing_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if mailing.message %}
+                        <a href="{% url 'mailings:message_detail' mailing.message.pk %}">
+                            {{ mailing.message.subject|truncatechars:25 }}
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Не указано</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if mailing.recipient.all %}
+                        <span class="badge bg-info">{{ mailing.recipient.count }} получателей</span>
+                        {% else %}
+                        <span class="text-muted">Нет получателей</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if mailing.datetime_start %}
+                        {{ mailing.datetime_start|date:"d.m.Y H:i" }}
+                        {% else %}
+                        <span class="text-muted">Не указана</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if mailing.datetime_end %}
+                        {{ mailing.datetime_end|date:"d.m.Y H:i" }}
+                        {% else %}
+                        <span class="text-muted">Не указана</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if mailing.owner_mailing %}
+                        {{ mailing.owner_mailing }}
+                        {% else %}
+                        <span class="text-muted">Не указан</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'mailings:mailing_detail' mailing.pk %}"
+                               class="btn btn-sm btn-info" title="Просмотреть">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            {% if request.user == mailing.owner_mailing or request.user.is_superuser %}
+                            <a href="{% url 'mailings:mailing_update' mailing.pk %}"
+                               class="btn btn-sm btn-warning" title="Редактировать">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if perms.mailings.block_mailing and mailing.status_mailing != mailing.BLOCKED %}
+                            <a href="{% url 'mailings:mailing_block' mailing.pk %}"
+                               class="btn btn-sm btn-danger" title="Заблокировать">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4">
+                        <i class="fas fa-inbox fa-2x mb-3 text-secondary"></i>
+                        <h5>Нет активных рассылок</h5>
+                        <p class="text-muted">Создайте новую рассылку, используя кнопку выше</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Фильтры и поиск -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Фильтрация рассылок</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Статус</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Все</option>
+                        <option value="completed">Завершена</option>
+                        <option value="created">Создана</option>
+                        <option value="launched">Запущена</option>
+                        <option value="blocked">Отключена</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="owner" class="form-label">Владелец</label>
+                    <select name="owner" id="owner" class="form-select">
+                        <option value="">Все</option>
+                        {% for owner in owners %}
+                        <option value="{{ owner.id }}">{{ owner.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Применить фильтр
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Сохраняем выбранные значения фильтра после отправки формы
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Восстанавливаем статус
+    const statusParam = urlParams.get('status');
+    if (statusParam) {
+        document.getElementById('status').value = statusParam;
+    }
+
+    // Восстанавливаем владельца
+    const ownerParam = urlParams.get('owner');
+    if (ownerParam) {
+        document.getElementById('owner').value = ownerParam;
+    }
+});
+</script>
+{% endblock %}

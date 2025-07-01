@@ -1,0 +1,99 @@
+{% extends 'mailings/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Всего рассылок</h5>
+                <p class="display-4">{{ total_mailings }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Активные рассылки</h5>
+                <p class="display-4">{{ active_mailings }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Уникальные получатели</h5>
+                <p class="display-4">{{ unique_recipients }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Всего попыток</h5>
+                <p class="display-4">{{ total_attempts }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Статистика попыток</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-around">
+                    <div class="text-center">
+                        <div class="text-success display-5">{{ success_attempts }}</div>
+                        <div>Успешных</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-danger display-5">{{ error_attempts }}</div>
+                        <div>Неуспешных</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Последние попытки</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for attempt in recent_attempts %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            {{ attempt.datetime_attempt|date:"d.m.Y H:i" }}<br>
+                            <small class="text-muted">{{ attempt.recipient.recipient_email }}</small>
+                        </div>
+                        <div>
+                            {% if attempt.status_attempt == "successfully" %}
+                                <span class="badge bg-success">Успешно</span>
+                            {% else %}
+                                <span class="badge bg-danger">Ошибка</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center">Нет данных о попытках</li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer text-end">
+                <a href="{% url 'mailings:attempts_list' %}" class="btn btn-sm btn-outline-primary">
+                    Все попытки
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
